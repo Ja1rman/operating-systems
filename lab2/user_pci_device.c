@@ -11,8 +11,12 @@ int main(int argc, char *argv[]) {
         printf("Invalid usage\ntry: ./a.out <vendor_id> <device_id>\n");
         return -1;
     }
-    int vendor_id = atoi(argv[1]);
-    int device_id = atoi(argv[2]);
+    char *hex_vendor_id = argv[1];
+    char *ptr;
+    int vendor_id = strtol(hex_vendor_id, &ptr, 16);
+    char *hex_device_id = argv[2];
+    char *ptr2;
+    int device_id = strtol(hex_device_id, &ptr2, 16);
     struct result *result = (struct result *) malloc(sizeof(struct result));
 
     long retval = syscall(549, vendor_id, device_id, result);
@@ -25,7 +29,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < result->size; i++) {
         printf("\nDevice #%d:\n", i+1);
         printf(" Name %s\n", result->devices[i].name);
-        printf(" Vendor ID = %d, Device ID = %d\n", result->devices[i].vendor_id, result->devices[i].device_id);
+        printf(" Vendor ID = %X, Device ID = %X\n", result->devices[i].vendor_id, result->devices[i].device_id);
         printf(" Revision ID = %d\n", result->devices[i].revision_id);
         printf(" Interrupt Line = %d\n", result->devices[i].interrupt_line);
         printf(" Latency Timer = %d\n", result->devices[i].latency_timer);

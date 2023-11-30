@@ -13,18 +13,26 @@ SYSCALL_DEFINE3(pci_device, int, vendor_id, int, device_id, void*, data)
 	char byte;
 	int i = 0;
 
-	struct result *result = vmalloc(sizeof(struct result));
-	struct custom_pci_dev *cpd = vmalloc(MAX_NUMBER * sizeof(struct custom_pci_dev));
+	struct result *result = kmalloc(sizeof(struct result));
+	if (result == NULL) {
+        printk(KERN_ERROR "CANT ALLOCATE MEMORY");
+        return -1;
+    }
+	struct custom_pci_dev *cpd = kmalloc(MAX_NUMBER * sizeof(struct custom_pci_dev));
+	if (cpd == NULL) {
+        printk(KERN_ERROR "CANT ALLOCATE MEMORY");
+        return -1;
+    }
 
 	while ((dev = pci_get_device(vendor_id, device_id, dev)) && i < MAX_NUMBER) {
 		printk(KERN_INFO "Device %d:\n", i);
 		strncpy(cpd->name, pci_name(dev), 13);
 		pci_read_config_word(dev, PCI_VENDOR_ID, &dval);
 		cpd->vendor_id = dval;
-		printk(KERN_INFO "Vendor_id %d ", cpd->vendor_id);
+		printk(KERN_INFO "Vendor_id %X ", cpd->vendor_id);
 		pci_read_config_word(dev, PCI_DEVICE_ID, &dval);
 		cpd->device_id = dval;
-		printk(KERN_INFO "Device_id %d\n", cpd->device_id);
+		printk(KERN_INFO "Device_id %X\n", cpd->device_id);
 		pci_read_config_byte(dev, PCI_REVISION_ID, &byte);
 		cpd->revision_id = byte;
 		pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &byte);
@@ -38,19 +46,19 @@ SYSCALL_DEFINE3(pci_device, int, vendor_id, int, device_id, void*, data)
 		printk(KERN_INFO "New device %s, i = %d\n", cpd->name, i);
 		i++;
 	}
-	vfree(cpd);
+	kfree(cpd);
 	result->size = i;
 	if (i == 0) {
-		vfree(result);
+		kfree(result);
 		printk("ERROR: SIZE 0");
 		return -1;
 	}
 	if (copy_to_user(data, result, sizeof(struct result)) != 0) {
-        vfree(result);
-        printk("ERR: COPY ERROR");
+        kfree(result);
+        printk("ERROR: CANT SEND TO USER");
         return -1; //  Неверный адрес
     }
-	vfree(result);
+	kfree(result);
 	
     return 0;
 }
