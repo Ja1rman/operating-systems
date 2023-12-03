@@ -13,14 +13,14 @@ SYSCALL_DEFINE3(pci_device, int, vendor_id, int, device_id, void*, data)
 	char byte;
 	int i = 0;
 
-	struct result *result = kmalloc(sizeof(struct result));
-	if (result == NULL) {
-        printk(KERN_ERROR "CANT ALLOCATE MEMORY");
+	struct result *result = kmalloc(sizeof(struct result), GFP_KERNEL);
+	if (!result) {
+        printk(KERN_ERR "CANT CREATE CUSTOM RESULT STRUCT");
         return -1;
     }
-	struct custom_pci_dev *cpd = kmalloc(MAX_NUMBER * sizeof(struct custom_pci_dev));
-	if (cpd == NULL) {
-        printk(KERN_ERROR "CANT ALLOCATE MEMORY");
+	struct custom_pci_dev *cpd = kmalloc(MAX_NUMBER * sizeof(struct custom_pci_dev), GFP_KERNEL);
+	if (!cpd) {
+        printk(KERN_ERR "CANT CREATE CUSTOM STRUCT");
         return -1;
     }
 
@@ -50,13 +50,13 @@ SYSCALL_DEFINE3(pci_device, int, vendor_id, int, device_id, void*, data)
 	result->size = i;
 	if (i == 0) {
 		kfree(result);
-		printk("ERROR: SIZE 0");
+		printk(KERN_ERR "SIZE 0");
 		return -1;
 	}
 	if (copy_to_user(data, result, sizeof(struct result)) != 0) {
         kfree(result);
-        printk("ERROR: CANT SEND TO USER");
-        return -1; //  Неверный адрес
+        printk(KERN_ERR "CANT SEND TO USER");
+        return -1;
     }
 	kfree(result);
 	

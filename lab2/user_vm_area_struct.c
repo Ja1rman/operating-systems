@@ -3,7 +3,7 @@
 #include <sys/syscall.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "custom_vm_area_info.h"
+#include "vm_area_struct.h"
 
 
 int main(int argc, char* argv[])
@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 
     int pid = atoi(argv[1]);
     unsigned long addr = strtoul(argv[2], NULL, 0);
-    struct custom_vm_area_info* data = malloc(sizeof(struct custom_vm_area_info));
+    struct custom_vm_area_struct* data = malloc(sizeof(struct custom_vm_area_struct));
     if (data == NULL) {
         printf("ERROR: CANT ALLOCATE MEMORY\n");
         return -1;
@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
     long int retval = syscall(550, pid, addr, data);
     if (retval != 0) {
         free(data);
-        printf("ERROR: SYSCALL RETURN EROR\n");
+        printf("ERROR: SYSCALL RETURN ERROR\n");
         return -1;
     }
   
