@@ -21,7 +21,12 @@ int main(int argc, char *argv[]) {
 
     long retval = syscall(549, vendor_id, device_id, result);
     printf("Syscall reted: %ld\n", retval);
-    
+    if (retval != 0) {
+        free(result);
+        printf("ERROR: SYSCALL RETURN ERROR\n");
+        return -1;
+    }
+
     if (!result->size) {
         printf("None");
     } 
@@ -35,5 +40,7 @@ int main(int argc, char *argv[]) {
         printf(" Latency Timer = %d\n", result->devices[i].latency_timer);
         printf(" Command = %d\n", result->devices[i].command);
 	}
+    free(result);
+    
     return 0;
 }

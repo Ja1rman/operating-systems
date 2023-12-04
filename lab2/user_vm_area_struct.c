@@ -21,7 +21,7 @@ int main(int argc, char* argv[])
         return -1;
     }
 
-    long int retval = syscall(550, pid, addr, data);
+    long retval = syscall(550, pid, addr, data);
     if (retval != 0) {
         free(data);
         printf("ERROR: SYSCALL RETURN ERROR\n");
